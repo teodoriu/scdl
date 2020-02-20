@@ -491,9 +491,9 @@ def download_original_file(track, title):
         newfilename = filename[:-4] + ".flac"
         new = shlex.quote(newfilename)
         old = shlex.quote(filename)
-        ffmpeg_path = shlex.quote(ffmpeg_path)
+        ffmpeg = shlex.quote(ffmpeg_path)
         
-        commands = [ffmpeg_path, '-i', old, new, '-loglevel', 'fatal']
+        commands = [ffmpeg, '-i', old, new, '-loglevel', 'fatal']
         logger.debug("Commands: {}".format(commands))
         subprocess.call(commands)
         os.remove(filename)
@@ -525,9 +525,9 @@ def download_hls_mp3(track, title):
     # Get the requests stream
     url = get_track_m3u8(track)
     filename_path = os.path.abspath(filename)
-    ffmpeg_path = shlex.quote(ffmpeg_path)
+    ffmpeg = shlex.quote(ffmpeg_path)
     
-    subprocess.call([ffmpeg_path, '-i', url, '-c', 'copy', filename_path, '-loglevel', 'fatal'])
+    subprocess.call([ffmpeg, '-i', url, '-c', 'copy', filename_path, '-loglevel', 'fatal'])
     return filename
 
 
