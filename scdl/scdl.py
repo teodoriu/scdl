@@ -5,11 +5,11 @@
 
 Usage:
     scdl -l <track_url> [-a | -f | -C | -t | -p][-c][-o <offset>]\
-[--hidewarnings][--debug | --error][--path <path>][--ffmpeg_path <path>][--addtofile][--addtimestamp]
+[--hidewarnings][--debug | --error][--path <path>][--ffmpeg-path <path>][--addtofile][--addtimestamp]
 [--onlymp3][--hide-progress][--min-size <size>][--max-size <size>][--remove]
 [--no-playlist-folder][--download-archive <file>][--extract-artist][--flac]
     scdl me (-s | -a | -f | -t | -p | -m)[-c][-o <offset>]\
-[--hidewarnings][--debug | --error][--path <path>][--ffmpeg_path <path>][--addtofile][--addtimestamp]
+[--hidewarnings][--debug | --error][--path <path>][--ffmpeg-path <path>][--addtofile][--addtimestamp]
 [--onlymp3][--hide-progress][--min-size <size>][--max-size <size>][--remove]
 [--no-playlist-folder][--download-archive <file>][--extract-artist][--flac]
     scdl -h | --help
@@ -47,7 +47,7 @@ Options:
     --onlymp3                   Download only the streamable mp3 file,
                                 even if track has a Downloadable file
     --path [path]               Use a custom path for downloaded files
-    --ffmpeg_path [path]        Use a custom path for ffmpeg executable
+    --ffmpeg-path [path]        Use a custom path for ffmpeg executable
     --remove                    Remove any files not downloaded from execution
     --flac                      Convert original files to .flac
 """
@@ -178,8 +178,8 @@ def main():
             sys.exit()
     logger.debug('Downloading to ' + os.getcwd() + '...')
     
-    if arguments['--ffmpeg_path'] is not None:
-        ffmpeg_path = arguments['--ffmpeg_path']
+    if arguments['--ffmpeg-path'] is not None:
+        ffmpeg_path = arguments['--ffmpeg-path']
     logger.debug('Using ' + ffmpeg_path + '...')
 
     if arguments['-l']:
@@ -491,6 +491,7 @@ def download_original_file(track, title):
         newfilename = filename[:-4] + ".flac"
         new = shlex.quote(newfilename)
         old = shlex.quote(filename)
+        ffmpeg_path = shlex.quote(ffmpeg_path)
         
         commands = [ffmpeg_path, '-i', old, new, '-loglevel', 'fatal']
         logger.debug("Commands: {}".format(commands))
@@ -524,7 +525,8 @@ def download_hls_mp3(track, title):
     # Get the requests stream
     url = get_track_m3u8(track)
     filename_path = os.path.abspath(filename)
-
+    ffmpeg_path = shlex.quote(ffmpeg_path)
+    
     subprocess.call([ffmpeg_path, '-i', url, '-c', 'copy', filename_path, '-loglevel', 'fatal'])
     return filename
 
