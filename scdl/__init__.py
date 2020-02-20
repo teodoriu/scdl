@@ -17,6 +17,7 @@ file_path_to_conf = os.path.join(dir_path_to_conf, 'scdl.cfg')
 text = """[scdl]
 auth_token =
 path = .
+ffmpeg_path = ffmpeg
 """
 
 if not os.path.exists(dir_path_to_conf):
