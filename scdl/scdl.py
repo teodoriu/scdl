@@ -5,11 +5,11 @@
 
 Usage:
     scdl -l <track_url> [-a | -f | -C | -t | -p][-c][-o <offset>]\
-[--hidewarnings][--debug | --error][--path <path>][--addtofile][--addtimestamp]
+[--hidewarnings][--debug | --error][--path <path>][--ffmpeg_path <path>][--addtofile][--addtimestamp]
 [--onlymp3][--hide-progress][--min-size <size>][--max-size <size>][--remove]
 [--no-playlist-folder][--download-archive <file>][--extract-artist][--flac]
     scdl me (-s | -a | -f | -t | -p | -m)[-c][-o <offset>]\
-[--hidewarnings][--debug | --error][--path <path>][--addtofile][--addtimestamp]
+[--hidewarnings][--debug | --error][--path <path>][--ffmpeg_path <path>][--addtofile][--addtimestamp]
 [--onlymp3][--hide-progress][--min-size <size>][--max-size <size>][--remove]
 [--no-playlist-folder][--download-archive <file>][--extract-artist][--flac]
     scdl -h | --help
@@ -47,6 +47,7 @@ Options:
     --onlymp3                   Download only the streamable mp3 file,
                                 even if track has a Downloadable file
     --path [path]               Use a custom path for downloaded files
+    --ffmpeg_path [path]        Use a custom path for ffmpeg executable
     --remove                    Remove any files not downloaded from execution
     --flac                      Convert original files to .flac
 """
@@ -85,6 +86,7 @@ logger.addFilter(utils.ColorizeFilter())
 arguments = None
 token = ''
 path = ''
+ffmpeg_path = ''
 offset = 1
 
 url = {
@@ -175,6 +177,10 @@ def main():
             logger.error('Invalid path in arguments...')
             sys.exit()
     logger.debug('Downloading to ' + os.getcwd() + '...')
+    
+    if arguments['--ffmpeg_path'] is not None:
+        ffmpeg_path = arguments['--ffmpeg_path']
+    logger.debug('Using ' + ffmpeg_path + '...')
 
     if arguments['-l']:
         parse_url(arguments['-l'])
@@ -206,6 +212,7 @@ def get_config():
     try:
         token = config['scdl']['auth_token']
         path = config['scdl']['path']
+        ffmpeg_path = config['scdl']['ffmpeg_path']
     except:
         logger.error('Are you sure scdl.cfg is in $HOME/.config/scdl/ ?')
         logger.error('Are both "auth_token" and "path" defined there?')
@@ -485,7 +492,7 @@ def download_original_file(track, title):
         new = shlex.quote(newfilename)
         old = shlex.quote(filename)
         
-        commands = ['ffmpeg', '-i', old, new, '-loglevel', 'fatal']
+        commands = [ffmpeg_path, '-i', old, new, '-loglevel', 'fatal']
         logger.debug("Commands: {}".format(commands))
         subprocess.call(commands)
         os.remove(filename)
@@ -518,7 +525,7 @@ def download_hls_mp3(track, title):
     url = get_track_m3u8(track)
     filename_path = os.path.abspath(filename)
 
-    subprocess.call(['ffmpeg', '-i', url, '-c', 'copy', filename_path, '-loglevel', 'fatal'])
+    subprocess.call([ffmpeg_path, '-i', url, '-c', 'copy', filename_path, '-loglevel', 'fatal'])
     return filename
 
 
